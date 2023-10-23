@@ -8,7 +8,7 @@ Final submission is coming soon.
 
 Foundation model: Qwen-14B
 
-PEFT: Qlora (for RTX 4090 tuning)
+PEFT: Qlora
 
 Dataset: Databricks-Dolly-15 
 
