@@ -1,6 +1,7 @@
 # Llama-recipes Example
 This example demonstrates how to fine-tune and serve a Llama 2 model with llama-recipes for submission in the LLM efficiency challenge using the [lit-gpt](../lit-gpt/) example as a template.
 Llama-recipes provides an easy way to fine-tune a Llama 2 model with custom datasets using efficient techniques like LoRA or Llama-adapters.
+https://github.com/llm-efficiency-challenge/neurips_llm_efficiency_challenge/tree/master/sample-submissions/llama_recipes
 
 # Getting Started
 In order to use llama-recipes we need to install the following pip package:
