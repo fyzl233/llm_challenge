@@ -1,11 +1,17 @@
 # Submission for neurips_llm_efficiency_challenge
+
 Our submission is based on https://github.com/llm-efficiency-challenge/neurips_llm_efficiency_challenge/tree/master/sample-submissions/llama_recipes .
+
 Final submission is coming soon.
 
 # Introduction about our approach
+
 Foundation model: Qwen-14B
+
 PEFT: Qlora (for RTX 4090 tuning)
+
 Dataset: Databricks-Dolly-15 
+
 Now we rank 14th in 4090 leaderboard of NeurIPS 1 LLM 1 GPU Competition
 
 # To DO
