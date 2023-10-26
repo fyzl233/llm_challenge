@@ -2,8 +2,6 @@
 
 Our submission is based on https://github.com/llm-efficiency-challenge/neurips_llm_efficiency_challenge/tree/master/sample-submissions/llama_recipes .
 
-Final submission is coming soon.
-
 # Introduction about our approach
 
 Foundation model: Qwen-14B
@@ -11,8 +9,6 @@ Foundation model: Qwen-14B
 PEFT: Qlora
 
 Dataset: Databricks-Dolly-15 
-
-Now we rank 14th in 4090 leaderboard of NeurIPS 1 LLM 1 GPU Competition
 
 # To DO
 1. try more datasets: OASST1(form Qlora) + Flan_v2_subsample(from https://github.com/allenai/open-instruct/blob/main/scripts/prepare_train_data.sh)
