@@ -8,8 +8,49 @@ import torch
 from huggingface_hub import login
 from transformers import LlamaTokenizer, LlamaForCausalLM
 from llama_recipes.inference.model_utils import load_peft_model
+from collections import defaultdict
+import copy
+import json
+import os
+from os.path import exists, join, isdir
+from dataclasses import dataclass, field
+import sys
+from typing import Optional, Dict, Sequence
+import numpy as np
+from tqdm import tqdm
+import logging
+import bitsandbytes as bnb
+import pandas as pd
+import importlib
+from packaging import version
+from packaging.version import parse
+from huggingface_hub import snapshot_download
 
-torch.set_float32_matmul_precision("high")
+import torch
+import transformers
+from torch.nn.utils.rnn import pad_sequence
+import argparse
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    set_seed,
+    Seq2SeqTrainer,
+    BitsAndBytesConfig,
+    LlamaTokenizer
+
+)
+from datasets import load_dataset, Dataset
+import evaluate
+
+from peft import (
+    prepare_model_for_kbit_training,
+    LoraConfig,
+    get_peft_model,
+    PeftModel
+)
+from peft.tuners.lora import LoraLayer
+from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
+
 
 from api import (
     ProcessRequest,
@@ -27,17 +68,45 @@ logging.basicConfig(level=logging.INFO)
 
 login(token=os.environ["HUGGINGFACE_TOKEN"])
 
-model = LlamaForCausalLM.from_pretrained(
-    'meta-llama/Llama-2-7b-hf',
-    return_dict=True,
-    torch_dtype=torch.float16,
-    device_map="cuda"
+if True:
+    model = AutoModelForCausalLM.from_pretrained(
+        "Qwen/Qwen-14B",
+        cache_dir=None,
+        load_in_4bit=True,
+        load_in_8bit=False,
+        device_map="auto",
+        quantization_config=BitsAndBytesConfig(
+            load_in_4bit=True,
+            load_in_8bit=False,
+            llm_int8_threshold=6.0,
+            llm_int8_has_fp16_weight=False,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        ),
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
     )
-model = load_peft_model(model, os.environ["HUGGINGFACE_REPO"])
+    model.config.torch_dtype=torch.bfloat16
 
-model.eval()
+    # Tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(
+        "Qwen/Qwen-14B",
+        cache_dir=None,
+        padding_side="right",
+        use_fast=False, # Fast tokenizer giving issues.
+        tokenizer_type=None, # Needed for HF name change
+        trust_remote_code=True,
+    )
 
-tokenizer = LlamaTokenizer.from_pretrained('meta-llama/Llama-2-7b')
+    snapshot_download(
+        "fyzl233/Qwen_dolly_928step",
+        local_dir="./fyzl233/Qwen_dolly_928step",
+        local_dir_use_symlinks=False,
+        token=os.environ["HUGGINGFACE_TOKEN"],
+    )
+
+    model = PeftModel.from_pretrained(model, "./fyzl233/Qwen_dolly_928step/adapter_model", is_trainable=False)
 
 LLAMA2_CONTEXT_LENGTH = 4096
 
